@@ -1,0 +1,27 @@
+{
+  "name": "@vkammerer/redux-postmessage-raf",
+  "version": "0.0.1",
+  "description": "A redux middleware to use @vkammerer/postmessage-raf",
+  "keywords": [
+    "redux",
+    "webworker",
+    "postmessage",
+    "requestAnimationFrame",
+    "performance"
+  ],
+  "main": "lib/index.js",
+  "module": "src/index.js",
+  "scripts": {
+    "lib": "node_modules/.bin/webpack src/index.js lib/index.js --module-bind babel-loader --output-library redux-postmessage-raf  --output-library-target umd"
+  },
+  "author": "Vincent Kammerer <vkammerer@gmail.com> (http://vincent-kammerer.com)",
+  "repository": "https://github.com/vkammerer/redux-postmessage-raf/tree/master",
+  "license": "MIT",
+  "devDependencies": {
+    "@vkammerer/postmessage-raf": "0.0.4",
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-env": "^1.4.0",
+    "webpack": "^2.6.0"
+  }
+}
