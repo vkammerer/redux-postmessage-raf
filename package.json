@@ -23,7 +23,7 @@
     "babel-preset-env": "^1.4.0",
     "webpack": "^2.6.0"
   },
-  "peerDependencies": {
+  "dependencies": {
     "@vkammerer/postmessage-raf": "0.0.4"
   }
 }
