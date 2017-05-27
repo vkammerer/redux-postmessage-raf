@@ -10,7 +10,7 @@ export const createMainMiddleware = ({ debug, worker }) => store => {
     function handleActionInMiddleware(action) {
       if (action.meta && action.meta.toWorker) {
         if (debug) logWithPerf("TO WORKER  ", action);
-        return messager.post({ payload: action });
+        return messager.post(action);
       }
       if (action.meta && action.meta.toMain) {
         if (debug) logWithPerf("FROM WORKER", action);
@@ -30,10 +30,7 @@ export const createWorkerMiddleware = ({ debug }) => store => {
     function handleActionInMiddleware(action) {
       if (action.meta && action.meta.toMain) {
         if (debug) logWithPerf("TO MAIN    ", action);
-        messager.post({
-          payload: action,
-          meta: { delay: action.meta.delay }
-        });
+        messager.post(action, { delay: action.meta.delay });
         if (action.type === "PING_START") messager.startPing();
         if (action.type === "PING_STOP") messager.stopPing();
         return;
