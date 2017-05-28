@@ -1,4 +1,5 @@
 import { mainMessager, workerMessager } from "@vkammerer/postmessage-raf";
+// import { mainMessager, workerMessager } from "../../postmessage-raf";
 import { logWithPerf } from "./utils";
 
 export const createMainMiddleware = ({ debug, worker }) => store => {
@@ -24,7 +25,7 @@ export const createMainMiddleware = ({ debug, worker }) => store => {
 export const createWorkerMiddleware = ({ debug }) => store => {
   const messager = workerMessager({
     onAction: store.dispatch,
-    onPong: pingData => store.dispatch({ type: "PONG", payload: pingData })
+    onPong: pingCount => store.dispatch({ type: "PONG", payload: pingCount })
   });
   return next =>
     function handleActionInMiddleware(action) {
