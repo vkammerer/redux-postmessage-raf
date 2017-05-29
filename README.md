@@ -90,10 +90,17 @@ dispatch({
 });
 // This action will stop the ping mode.
 ```   
-In ping mode, a 'PONG' action is triggered after each pong message. Its format is the following:
+In ping mode, 4 actions are triggered after each ping.
+On the main thread store, the two actions are:
 ```javascript
 {
-  type: 'PONG',
+  type: 'PING_BEFORE',
+  payload: {
+    count: 10 // number of pings since Ping mode is started
+  }
+}
+{
+  type: 'PING_AFTER',
   payload: {
     count: 10 // number of pings since Ping mode is started
   }

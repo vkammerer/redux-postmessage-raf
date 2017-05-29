@@ -5,7 +5,11 @@ import { logWithPerf } from "./utils";
 export const createMainMiddleware = ({ debug, worker }) => store => {
   const messager = mainMessager({
     worker,
-    onAction: store.dispatch
+    onAction: store.dispatch,
+    beforePing: pingCount =>
+      store.dispatch({ type: "PING_BEFORE", payload: pingCount }),
+    afterPing: pingCount =>
+      store.dispatch({ type: "PING_AFTER", payload: pingCount })
   });
   return next =>
     function handleActionInMiddleware(action) {
@@ -25,7 +29,10 @@ export const createMainMiddleware = ({ debug, worker }) => store => {
 export const createWorkerMiddleware = ({ debug }) => store => {
   const messager = workerMessager({
     onAction: store.dispatch,
-    onPong: pingCount => store.dispatch({ type: "PONG", payload: pingCount })
+    beforePong: pongCount =>
+      store.dispatch({ type: "PONG_BEFORE", payload: pongCount }),
+    afterPong: pongCount =>
+      store.dispatch({ type: "PONG_AFTER", payload: pongCount })
   });
   return next =>
     function handleActionInMiddleware(action) {
