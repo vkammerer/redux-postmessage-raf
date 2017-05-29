@@ -1,6 +1,6 @@
 {
   "name": "@vkammerer/redux-postmessage-raf",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A redux middleware to use @vkammerer/postmessage-raf",
   "keywords": [
     "redux",
