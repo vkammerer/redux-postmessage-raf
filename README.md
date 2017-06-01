@@ -1,4 +1,12 @@
-A [redux middleware](http://redux.js.org/docs/advanced/Middleware.html) to use [@vkammerer/postmessage-raf](https://github.com/vkammerer/postmessage-raf).
+A [redux middleware](http://redux.js.org/docs/advanced/Middleware.html) for [@vkammerer/postmessage-raf](https://github.com/vkammerer/postmessage-raf).
+
+This library makes it possible to pass FSA actions between two Redux stores (one in the main thread and one in a worker) in a declarative way.   
+
+It provides a "Ping mode", which optimizes the time at which messages are sent between the main and the worker threads, so that every message is exchanged at the beginning of a [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame) call.   
+
+If you want to see it in action, see [vkammerer/redux-postmessage-raf-examples](https://github.com/vkammerer/redux-postmessage-raf-examples), deployed at [vkammerer.github.io/redux-postmessage-raf-examples/](https://vkammerer.github.io/redux-postmessage-raf-examples/).   
+
+If you want to quickly try it yourself, you main find the [boilerplate](https://github.com/vkammerer/redux-postmessage-raf-boilerplate) useful.   
 
 ## Installation
 ```shell
@@ -27,7 +35,7 @@ const workerMiddleware = createWorkerMiddleware();
 const store = createStore(reducer, applyMiddleware(workerMiddleware));
 ```
 
-## Usage
+## Basic usage
 An action will be passed to another thread store if the meta attribute ```toWorker``` or ```toMain``` is set to true.   
 
 In the main thread:
@@ -38,7 +46,7 @@ dispatch({
     toWorker: true
   }
 });
-// This action will be passed to the worker store and ignored by the main store.
+// This action will be passed to the worker store.
 ```   
 In the worker:
 ```javascript
@@ -48,24 +56,8 @@ dispatch({
     toMain: true
   }
 });
-// This action will be passed to the main thread store and ignored by the worker store.
-```
-A delay can be set to a worker action with additional meta attributes:  
-```javascript
-dispatch({
-  type: 'DELAYED_WORKER_ACTION',
-  meta: {
-    toMain: true,
-    delay: {
-      count: 10, // Not to be used in conjunction with 'index'
-      index: 12 // Not to be used in conjunction with 'count'
-    }
-  }
-});
-// This action will be dispatched to the main thread store
-// - after the 10th ping since the start,
-// - or 12 pings after it receives the message.
-```
+// This action will be passed to the main thread store.
+```   
 
 ## Ping mode
 The [Ping mode](https://github.com/vkammerer/postmessage-raf#ping-mode-) can be started with the following action:   
@@ -90,20 +82,49 @@ dispatch({
 });
 // This action will stop the ping mode.
 ```   
-In ping mode, 4 actions are triggered after each ping.
-On the main thread store, the two actions are:
+
+## API
+
+### Ping mode actions
+The main and worker middlewares can opt in, at initialization time, to dispatch actions for any hook in the message exchange lifecycle: ```beforePing```, ```afterPing```, ```beforePong``` and ```afterPong```.
+For example, in the worker:
 ```javascript
-{
-  type: 'PING_BEFORE',
-  payload: {
-    count: 10 // number of pings since Ping mode is started
+const workerMiddleware = createWorkerMiddleware({
+  dispatchAfterPong: true,
+  /*
+    After each pong message is sent, an action with the following format will be dispatched:
+    {
+      type: "PONG_AFTER",
+      payload: 10 // number of pongs since 'PING_START' was dispatched
+    }
+  */
+});
+```
+
+### Delayed actions
+In ping mode, the worker can decide to delay the action to be dispatched to the main store by setting additional meta attributes:  
+In the worker:   
+```javascript
+dispatch({
+  type: 'DELAYED_WORKER_ACTION',
+  meta: {
+    toMain: true,
+    delay: {
+      count: 10,
+      /*
+        Registers the action to be dispatched in the main thread store
+        at the 10th ping since 'START_PING' was dispatched.
+        If the ping has already occured or if the pinging mode is stopped before,
+        the action will be ignored.
+        Not to be used in conjunction with 'index' here under
+      */
+      index: 12
+      /*
+        Registers the action to be dispatched 12 pings after the main thread receives it.
+        If the pinging mode is stopped before, the action will be ignored.
+        Not to be used in conjunction with 'count' here above
+      */
+    }
   }
-}
-{
-  type: 'PING_AFTER',
-  payload: {
-    count: 10 // number of pings since Ping mode is started
-  }
-}
-// This action will be dispatched to the worker store.
-```   
+});
+```
