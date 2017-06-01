@@ -43,20 +43,20 @@ In the main thread:
 dispatch({
   type: 'UI_ACTION',
   meta: {
-    toWorker: true
+    toWorker: true, // This action will be passed to the worker store.
+    ignoreSelf: true // This action will not be propagated to other middlewares in the main store
   }
 });
-// This action will be passed to the worker store.
 ```   
 In the worker:
 ```javascript
 dispatch({
   type: 'WORKER_ACTION',
   meta: {
-    toMain: true
+    toMain: true, // This action will be passed to the main thread store.
+    ignoreSelf: true // This action will not be propagated to other middlewares in the worker store
   }
 });
-// This action will be passed to the main thread store.
 ```   
 
 ## Ping mode
@@ -110,7 +110,7 @@ dispatch({
   meta: {
     toMain: true,
     delay: {
-      count: 10,
+      pingCount: 10,
       /*
         Registers the action to be dispatched in the main thread store
         at the 10th ping since 'START_PING' was dispatched.
